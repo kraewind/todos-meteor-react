@@ -1,19 +1,73 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useTracker } from 'meteor/react-meteor-data';
+import { TasksCollection } from '/imports/api/TasksCollection';
 import { Task } from './Task';
+import { TaskForm } from './TaskForm';
 
  
-const tasks = [
-  {_id: 1, text: 'Tyler'},
-  {_id: 2, text: 'Krae'},
-  {_id: 3, text: 'Noa'},
-];
+export const App = () => {
+  const hideCompletedFilter = { isChecked: { $ne: true } };
+  const [hideCompleted, setHideCompleted] = useState(false);
 
-export const App = () => (
-  <div>
-    <h1>Welcome to Todos!</h1>
+  const pendingTasksCount = useTracker(() =>
+    TasksCollection.find(hideCompletedFilter).count()
+  );
+
+  const pendingTasksTitle = `${
+    pendingTasksCount ? ` (${pendingTasksCount})` : ''
+  }`;
+
+  const tasks = useTracker(() =>
+    TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, {
+      sort: { createdAt: -1 },
+    }).fetch()
+  );
  
-    <ul>
-      { tasks.map(task => <Task key={ task._id } task={ task }/>) }
-    </ul>
-  </div>
-);
+  const onCheckboxClick = ({ _id, isChecked }) => {
+    TasksCollection.update(_id, {
+      $set: {
+        isChecked: !isChecked
+      }
+    })
+  };
+
+  const onDeleteClick = ({ _id }) => TasksCollection.remove(_id);
+
+  
+
+  return (
+    <div className="app">
+      <header>
+        <div className="app-bar">
+          <div className="app-header">
+          <h1>
+            📝️ To Do List
+            {pendingTasksTitle}
+          </h1>
+          </div>
+        </div>
+      </header>
+
+      <div className="main">
+        <TaskForm />
+
+        <div className="filter">
+         <button onClick={() => setHideCompleted(!hideCompleted)}>
+           {hideCompleted ? 'Show All' : 'Hide Completed'}
+         </button>
+       </div>
+
+        <ul className="tasks">
+          {tasks.map(task => (
+            <Task
+              key={task._id}
+              task={task}
+              onCheckboxClick={onCheckboxClick}
+              onDeleteClick={onDeleteClick}
+            />
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
