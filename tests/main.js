@@ -1,4 +1,6 @@
 import assert from "assert";
+import '/imports/api/tasksMethods.tests.js';
+
 
 describe("todos-meteor-react", function () {
   it("package.json has correct name", async function () {
