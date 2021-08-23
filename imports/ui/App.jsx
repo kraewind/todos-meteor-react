@@ -39,26 +39,6 @@ export const App = () => {
 
     return { tasks, pendingTasksCount };
   });
-  // const tasks = useTracker(() => {
-  //   if (!user) {
-  //     return [];
-  //   }
-    
-  //   return TasksCollection.find(
-  //     hideCompleted ? pendingOnlyFilter : userFilter,
-  //     {
-  //       sort: { createdAt: -1 },
-  //     }
-  //     ).fetch();
-  //   });
-    
-  // const pendingTasksCount = useTracker(() => {
-  //   if (!user) {
-  //     return 0;
-  //   }
-
-  //   return TasksCollection.find(pendingOnlyFilter).count();
-  // });
 
   const pendingTasksTitle = `${
     pendingTasksCount ? ` (${pendingTasksCount})` : ''
@@ -70,8 +50,6 @@ export const App = () => {
   const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
 
   const logout = () => Meteor.logout();
-
-
 
 
   return (
